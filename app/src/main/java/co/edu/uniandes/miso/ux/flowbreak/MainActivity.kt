@@ -8,10 +8,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,9 +28,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.AddAlarmButton
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.ListItemAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.LoginButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.LoginLogo
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.MainTab
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.MainToolBar
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary40
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary95
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FlowBreakMobileTheme
 
 class MainActivity : ComponentActivity() {
@@ -104,10 +115,77 @@ fun LoginDisplay(
     }
 }
 
+
+@Composable
+fun HomeDisplay() {
+    Scaffold(
+        topBar = {
+            MainTab(
+                text = R.string.home_tab,
+                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            )
+        },
+        floatingActionButton = {
+            Column() {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    AddAlarmButton()
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    MainToolBar()
+                }
+            }
+        }
+    ) { padding ->
+        Background(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(43.dp))
+                ListItemAlarm(
+                    overline = R.string.alarm_list_item_1_overline,
+                    headline = R.string.alarm_list_item_1_headline,
+                    supportingText = R.string.alarm_list_item_1_supportingText,
+                    color = FB_Light_Secondary95,
+                    )
+                Spacer(modifier = Modifier.height(43.dp))
+                ListItemAlarm(
+                    overline = R.string.alarm_list_item_2_overline,
+                    headline = R.string.alarm_list_item_2_headline,
+                    supportingText = R.string.alarm_list_item_2_supportingText,
+                    color = FB_Light_Primary95,
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDisplayPreview() {
     FlowBreakMobileTheme {
         LoginDisplay()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun HomeDisplayPreview() {
+    FlowBreakMobileTheme {
+        HomeDisplay()
     }
 }
