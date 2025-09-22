@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +32,9 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,7 +61,9 @@ import co.edu.uniandes.miso.ux.flowbreak.ui.components.TypeAlarmButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary10
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary40
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary50
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary70
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary95
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary50
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FlowBreakMobileTheme
 
@@ -416,6 +422,48 @@ fun RecordVoiceDisplay() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimePickerCreateAlarmDisplay() {
+    val timePickerState = rememberTimePickerState(
+        initialHour = 0,
+        initialMinute = 0,
+        is24Hour = true,
+    )
+    Box() {
+        CreateAlarmScreen()
+        Spacer(
+            modifier = Modifier
+                .matchParentSize()
+                .background(color = FB_Light_Primary10.copy(alpha = .7f))
+        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            TimePicker(
+                state = timePickerState,
+                colors = TimePickerDefaults.colors(
+                    clockDialColor = FB_Light_Primary70,
+                    selectorColor = FB_Light_Secondary50,
+                    clockDialSelectedContentColor = Color.White,
+                    clockDialUnselectedContentColor = MaterialTheme.colorScheme.onSurface,
+                    timeSelectorSelectedContainerColor = Color.Transparent,
+                    timeSelectorUnselectedContainerColor = Color.Transparent,
+                    timeSelectorSelectedContentColor = Color.Transparent,
+                    timeSelectorUnselectedContentColor = Color.Transparent,
+                    periodSelectorSelectedContentColor = Color.Transparent,
+                    periodSelectorSelectedContainerColor = Color.Transparent,
+                    periodSelectorUnselectedContainerColor = Color.Transparent,
+                    periodSelectorUnselectedContentColor = Color.Transparent
+                )
+            )
+        }
+    }
+}
+
 @Composable
 fun DeleteAlarmDisplay() {
     Box() {
@@ -471,5 +519,13 @@ fun RecordVoiceDisplayPreview() {
 fun DeleteAlarmDisplayPreview() {
     FlowBreakMobileTheme {
         DeleteAlarmDisplay()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun TimePickerCreateAlarmDisplayPreview() {
+    FlowBreakMobileTheme {
+        TimePickerCreateAlarmDisplay()
     }
 }
