@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,19 +18,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.AddAlarmButton
@@ -43,6 +53,7 @@ import co.edu.uniandes.miso.ux.flowbreak.ui.components.TextFieldAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.TimePickerAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.TypeAlarmButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary40
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary50
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FlowBreakMobileTheme
@@ -306,6 +317,102 @@ fun CreateAlarmScreen() {
     }
 }
 
+
+@Composable
+fun RecordVoiceDisplay() {
+    Scaffold(
+        topBar = {
+            MainTab(
+                text = R.string.creation_tab,
+                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    ) { padding ->
+        Background(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .width(196.dp)
+                            .padding(top = 14.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.recording_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(69.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.voice_recording),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.height(143.dp)
+                )
+                Spacer(modifier = Modifier.height(28.dp))
+                IconButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(56.dp)
+                        .border(
+                            BorderStroke(2.dp, FB_Light_Primary50),
+                            shape = RoundedCornerShape(60.dp)
+                        ),
+                    enabled = true,
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = FB_Light_Primary50
+                    )
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.icon_mic),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(14.dp)
+                            .height(19.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
+
+                    )
+                }
+                Spacer(modifier = Modifier.height(19.dp))
+                Text(
+                    text = stringResource(R.string.recording_text),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.Black,
+                    fontStyle = FontStyle.Italic,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .width(235.dp)
+                )
+                Spacer(modifier = Modifier.height(119.dp))
+                AlarmCreationButtons(
+                    widthTonalButton = 115.dp,
+                    heightTonalButton = 56.dp,
+                    widthFilledButton = 125.dp,
+                    heightFilledButton = 56.dp,
+                    textFilledButton = R.string.recording_cancel,
+                    textTonalButton = R.string.recording_confirm,
+                    space = 47.5.dp
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDisplayPreview() {
@@ -327,5 +434,13 @@ fun HomeDisplayPreview() {
 fun CreateAlarmScreenPreview() {
     FlowBreakMobileTheme {
         CreateAlarmScreen()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun RecordVoiceDisplayPreview() {
+    FlowBreakMobileTheme {
+        RecordVoiceDisplay()
     }
 }
