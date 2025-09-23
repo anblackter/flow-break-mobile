@@ -482,6 +482,40 @@ fun DeleteAlarmDisplay() {
     }
 }
 
+@Composable
+fun LoadingDisplay(
+    modifier: Modifier = Modifier
+) {
+    Scaffold() { padding ->
+        Background(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(172.dp)
+                        .width(160.dp)
+                )
+                Text(
+                    text = stringResource(R.string.loading_text),
+                    modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = FB_Light_Primary40
+                )
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDisplayPreview() {
@@ -527,5 +561,13 @@ fun DeleteAlarmDisplayPreview() {
 fun TimePickerCreateAlarmDisplayPreview() {
     FlowBreakMobileTheme {
         TimePickerCreateAlarmDisplay()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun LoadingDisplayPreview() {
+    FlowBreakMobileTheme {
+        LoadingDisplay()
     }
 }
