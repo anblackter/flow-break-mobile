@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.AddAlarmButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.AlarmCreationButtons
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.AlertDialogDeleteAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.DayCheckBoxAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.ListItemAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.LoginButton
@@ -52,6 +54,7 @@ import co.edu.uniandes.miso.ux.flowbreak.ui.components.MainToolBar
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.TextFieldAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.TimePickerAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.TypeAlarmButton
+import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary10
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary40
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary50
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary95
@@ -413,6 +416,24 @@ fun RecordVoiceDisplay() {
     }
 }
 
+@Composable
+fun DeleteAlarmDisplay() {
+    Box() {
+        HomeDisplay()
+        Spacer(
+            modifier = Modifier
+                .matchParentSize()
+                .background(color = FB_Light_Primary10.copy(alpha = .7f))
+        )
+        AlertDialogDeleteAlarm(
+            dialogTitle = R.string.alarm_deletion_title,
+            dialogText = R.string.alarm_deletion_text,
+            deleteText = R.string.alarm_deletion_delete,
+            cancelText = R.string.alarm_deletion_cancel,
+        )
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDisplayPreview() {
@@ -442,5 +463,13 @@ fun CreateAlarmScreenPreview() {
 fun RecordVoiceDisplayPreview() {
     FlowBreakMobileTheme {
         RecordVoiceDisplay()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 749)
+@Composable
+fun DeleteAlarmDisplayPreview() {
+    FlowBreakMobileTheme {
+        DeleteAlarmDisplay()
     }
 }
