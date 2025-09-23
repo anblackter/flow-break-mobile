@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,11 +32,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.AddAlarmButton
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.AlarmCreationButtons
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.DayCheckBoxAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.ListItemAlarm
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.LoginButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.LoginLogo
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.MainTab
 import co.edu.uniandes.miso.ux.flowbreak.ui.components.MainToolBar
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.TextFieldAlarm
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.TimePickerAlarm
+import co.edu.uniandes.miso.ux.flowbreak.ui.components.TypeAlarmButton
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary40
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Primary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary95
@@ -174,6 +182,130 @@ fun HomeDisplay() {
     }
 }
 
+@Composable
+fun CreateAlarmScreen() {
+    Scaffold(
+        topBar = {
+            MainTab(
+                text = R.string.creation_tab,
+                modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars)
+            )
+        },
+        floatingActionButton = {
+            MainToolBar()
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    ) { padding ->
+        Background(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(47.dp))
+                TextFieldAlarm(
+                    name = R.string.alarm_creation_text_field_name,
+                    placeholder = R.string.alarm_creation_text_field_placeholder
+                )
+                Spacer(modifier = Modifier.height(47.dp))
+                Text(
+                    text = stringResource(R.string.creation_time_pick_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                TimePickerAlarm(
+                    text = R.string.alarm_creation_text_start_time_label
+                )
+                Spacer(modifier = Modifier.height(21.dp))
+                TimePickerAlarm(
+                    text = R.string.alarm_creation_text_end_time_label
+                )
+                Spacer(modifier = Modifier.height(31.dp))
+                Text(
+                    text = stringResource(R.string.creation_date_pick_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 7.dp),
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_sunday
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_monday,
+                        checked = true
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_tuesday,
+                        checked = true
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_wednesday,
+                        checked = true
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_thursday,
+                        checked = true
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_friday,
+                        checked = true
+                    )
+                    DayCheckBoxAlarm(
+                        day = R.string.alarm_creation_text_saturday,
+                        checked = true
+                    )
+                }
+                Spacer(modifier = Modifier.height(26.dp))
+                Text(
+                    text = stringResource(R.string.creation_date_type_title),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TypeAlarmButton(
+                        text = R.string.alarm_creation_type_challenge,
+                        icon = R.drawable.icon_alarm
+                    )
+                    TypeAlarmButton(
+                        text = R.string.alarm_creation_type_suggestion,
+                        icon = R.drawable.icon_notifications
+                    )
+                }
+                Spacer(modifier = Modifier.height(69.dp))
+                AlarmCreationButtons(
+                    widthTonalButton = 115.dp,
+                    heightTonalButton = 56.dp,
+                    widthFilledButton = 111.dp,
+                    heightFilledButton = 56.dp,
+                    textFilledButton = R.string.alarm_creation_cancel,
+                    textTonalButton = R.string.alarm_creation_save,
+                    space = 30.dp
+                )
+                Spacer(modifier = Modifier.height(90.dp))
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 800)
 @Composable
 fun LoginDisplayPreview() {
@@ -187,5 +319,13 @@ fun LoginDisplayPreview() {
 fun HomeDisplayPreview() {
     FlowBreakMobileTheme {
         HomeDisplay()
+    }
+}
+
+@Preview(showBackground = true, widthDp = 360, heightDp = 800)
+@Composable
+fun CreateAlarmScreenPreview() {
+    FlowBreakMobileTheme {
+        CreateAlarmScreen()
     }
 }
