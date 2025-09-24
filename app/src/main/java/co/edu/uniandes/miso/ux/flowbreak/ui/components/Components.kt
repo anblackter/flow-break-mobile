@@ -6,6 +6,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,10 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -73,13 +78,14 @@ import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FlowBreakMobileTheme
 fun LoginButton(
     @DrawableRes icon: Int,
     @StringRes text: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLoginClick: () -> Unit = {}
 ) {
     ElevatedButton(
         modifier = modifier
             .width(197.dp)
             .height(96.dp),
-        onClick = {},
+        onClick = onLoginClick,
         colors = ButtonDefaults.elevatedButtonColors(
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -197,7 +203,9 @@ fun ListItemAlarm(
     @StringRes headline: Int,
     @StringRes supportingText: Int,
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEdit: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -253,7 +261,7 @@ fun ListItemAlarm(
                     .padding(start = 13.dp, end = 13.dp)
             ) {
                 FilledIconButton(
-                    onClick = {},
+                    onClick = onEdit,
                     shape = RoundedCornerShape(50),
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.secondary
@@ -272,7 +280,7 @@ fun ListItemAlarm(
                 }
                 Spacer(modifier = Modifier.width(18.dp))
                 FilledIconButton(
-                    onClick = {},
+                    onClick = onDelete,
                     shape = RoundedCornerShape(50),
                     colors = IconButtonDefaults.iconButtonColors(
                         containerColor = MaterialTheme.colorScheme.error
@@ -296,10 +304,11 @@ fun ListItemAlarm(
 
 @Composable
 fun AddAlarmButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     FloatingActionButton(
-        onClick = {},
+        onClick = onClick,
         modifier = modifier,
         containerColor = MaterialTheme.colorScheme.primary,
         elevation = FloatingActionButtonDefaults.elevation(
@@ -316,7 +325,9 @@ fun AddAlarmButton(
 
 @Composable
 fun MainToolBar(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAlarmClick: () -> Unit = {},
+    onMonitoringClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -338,7 +349,7 @@ fun MainToolBar(
                 .height(64.dp)
         ) {
             IconButton(
-                onClick = {},
+                onClick = onAlarmClick,
                 modifier = modifier
                     .size(60.dp)
             ) {
@@ -423,10 +434,11 @@ fun TextFieldAlarm(
 @Composable
 fun TimePickerAlarm(
     modifier: Modifier = Modifier,
-    @StringRes text: Int
+    @StringRes text: Int,
+    onClick: () -> Unit = {}
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.clickable { onClick() },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -493,8 +505,11 @@ fun TimePickerAlarm(
 fun DayCheckBoxAlarm(
     @StringRes day: Int,
     modifier: Modifier = Modifier,
-    checked: Boolean = false
+    initialChecked: Boolean = false,
+    onCheckedChange: (Boolean) -> Unit = {}
 ) {
+    var checked by remember { mutableStateOf(initialChecked) }
+    
     Box(
         modifier = modifier,
         contentAlignment = Alignment.TopCenter
@@ -508,7 +523,10 @@ fun DayCheckBoxAlarm(
         )
         Checkbox(
             checked = checked,
-            onCheckedChange = {},
+            onCheckedChange = { newValue ->
+                checked = newValue
+                onCheckedChange(newValue)
+            },
             modifier = modifier
                 .padding(top = 16.dp)
         )
@@ -519,7 +537,8 @@ fun DayCheckBoxAlarm(
 fun TypeAlarmButton(
     @StringRes text: Int,
     @DrawableRes icon: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     Column(
         modifier = modifier,
@@ -528,7 +547,7 @@ fun TypeAlarmButton(
     ) {
         IconToggleButton(
             checked = false,
-            onCheckedChange = {},
+            onCheckedChange = { onClick() },
             modifier = modifier
                 .border(
                     BorderStroke(2.dp, FB_Light_Primary85),
@@ -564,7 +583,9 @@ fun AlarmCreationButtons(
     space: Dp,
     @StringRes textFilledButton: Int,
     @StringRes textTonalButton: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFilledButtonClick: () -> Unit = {},
+    onTonalButtonClick: () -> Unit = {}
 ) {
     Row(
         modifier = modifier,
@@ -575,7 +596,7 @@ fun AlarmCreationButtons(
             modifier = modifier
                 .width(widthTonalButton)
                 .height(heightTonalButton),
-            onClick = {},
+            onClick = onFilledButtonClick,
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.filledTonalButtonColors(
                 containerColor = FB_Light_Primary100,
@@ -594,7 +615,7 @@ fun AlarmCreationButtons(
                 .width(widthFilledButton)
                 .height(heightFilledButton),
             shape = RoundedCornerShape(16.dp),
-            onClick = {},
+            onClick = onTonalButtonClick,
         ) {
             Text(
                 text = stringResource(textTonalButton),
@@ -611,7 +632,10 @@ fun AlertDialogDeleteAlarm(
     @StringRes dialogText: Int,
     @StringRes deleteText: Int,
     @StringRes cancelText: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit = {},
+    onConfirmDelete: () -> Unit = {},
+    onCancel: () -> Unit = {}
 ) {
     AlertDialog(
         containerColor = FB_Light_Primary30,
@@ -637,10 +661,10 @@ fun AlertDialogDeleteAlarm(
                 color = FB_Light_Tertiary85
             )
         },
-        onDismissRequest = {},
+        onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(
-                onClick = {},
+                onClick = onCancel,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     containerColor = FB_Light_Primary50
@@ -654,7 +678,7 @@ fun AlertDialogDeleteAlarm(
         },
         dismissButton = {
             TextButton(
-                onClick = {},
+                onClick = onConfirmDelete,
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = Color.Black,
                     containerColor = Color.White

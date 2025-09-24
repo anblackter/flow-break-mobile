@@ -4,10 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,9 +43,16 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,13 +81,64 @@ import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary50
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FB_Light_Secondary95
 import co.edu.uniandes.miso.ux.flowbreak.ui.theme.FlowBreakMobileTheme
 
+// Define the different screens in the app
+enum class Screen {
+    LOGIN,
+    HOME,
+    CREATE_ALARM,
+    RECORD_VOICE,
+    TIME_PICKER,
+    DELETE_ALARM,
+    LOADING
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             FlowBreakMobileTheme {
-                    LoginDisplay()
+                AppNavigation()
+            }
+        }
+    }
+}
+
+// Main navigation composable that handles screen switching
+@Composable
+fun AppNavigation() {
+    var currentScreen by remember { mutableStateOf(Screen.LOGIN) }
+    
+    when (currentScreen) {
+        Screen.LOGIN -> LoginDisplay(
+            onLoginSuccess = { currentScreen = Screen.LOADING }
+        )
+        Screen.HOME -> HomeDisplay(
+            onAddAlarm = { currentScreen = Screen.CREATE_ALARM },
+            onDeleteAlarm = { currentScreen = Screen.DELETE_ALARM }
+        )
+        Screen.CREATE_ALARM -> CreateAlarmScreen(
+            onBack = { currentScreen = Screen.HOME },
+            onSave = { currentScreen = Screen.HOME },
+            onTimePicker = { currentScreen = Screen.TIME_PICKER },
+            onRecordVoice = { currentScreen = Screen.RECORD_VOICE }
+        )
+        Screen.RECORD_VOICE -> RecordVoiceDisplay(
+            onBack = { currentScreen = Screen.CREATE_ALARM },
+            onConfirm = { currentScreen = Screen.CREATE_ALARM }
+        )
+        Screen.TIME_PICKER -> TimePickerCreateAlarmDisplay(
+            onBack = { currentScreen = Screen.CREATE_ALARM }
+        )
+        Screen.DELETE_ALARM -> DeleteAlarmDisplay(
+            onBack = { currentScreen = Screen.HOME },
+            onConfirmDelete = { currentScreen = Screen.HOME }
+        )
+        Screen.LOADING -> {
+            LoadingDisplay()
+            LaunchedEffect(Unit) {
+                delay(800) // Wait for 800ms (same as animation duration)
+                currentScreen = Screen.HOME
             }
         }
     }
@@ -100,7 +165,8 @@ fun Background(
 
 @Composable
 fun LoginDisplay(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLoginSuccess: () -> Unit = {}
 ) {
     FlowBreakMobileTheme {
         Scaffold() { padding ->
@@ -129,12 +195,14 @@ fun LoginDisplay(
                     Spacer(modifier = Modifier.height(51.dp))
                     LoginButton(
                         text = R.string.login_google,
-                        icon = R.drawable.icon_google
+                        icon = R.drawable.icon_google,
+                        onLoginClick = onLoginSuccess
                     )
                     Spacer(modifier = Modifier.height(57.dp))
                     LoginButton(
                         text = R.string.login_microsoft,
-                        icon = R.drawable.icon_microsoft
+                        icon = R.drawable.icon_microsoft,
+                        onLoginClick = onLoginSuccess
                     )
                 }
             }
@@ -145,7 +213,10 @@ fun LoginDisplay(
 
 
 @Composable
-fun HomeDisplay() {
+fun HomeDisplay(
+    onAddAlarm: () -> Unit = {},
+    onDeleteAlarm: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             MainTab(
@@ -160,14 +231,16 @@ fun HomeDisplay() {
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    AddAlarmButton()
+                    AddAlarmButton(onClick = onAddAlarm)
                 }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    MainToolBar()
+                    MainToolBar(
+                        onAlarmClick = { /* Already on home, do nothing */ }
+                    )
                 }
             }
         }
@@ -189,13 +262,17 @@ fun HomeDisplay() {
                     headline = R.string.alarm_list_item_1_headline,
                     supportingText = R.string.alarm_list_item_1_supportingText,
                     color = FB_Light_Secondary95,
-                    )
+                    onEdit = onAddAlarm,
+                    onDelete = onDeleteAlarm
+                )
                 Spacer(modifier = Modifier.height(43.dp))
                 ListItemAlarm(
                     overline = R.string.alarm_list_item_2_overline,
                     headline = R.string.alarm_list_item_2_headline,
                     supportingText = R.string.alarm_list_item_2_supportingText,
                     color = FB_Light_Primary95,
+                    onEdit = onAddAlarm,
+                    onDelete = onDeleteAlarm
                 )
             }
         }
@@ -203,7 +280,12 @@ fun HomeDisplay() {
 }
 
 @Composable
-fun CreateAlarmScreen() {
+fun CreateAlarmScreen(
+    onBack: () -> Unit = {},
+    onSave: () -> Unit = {},
+    onTimePicker: () -> Unit = {},
+    onRecordVoice: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             MainTab(
@@ -212,7 +294,9 @@ fun CreateAlarmScreen() {
             )
         },
         floatingActionButton = {
-            MainToolBar()
+            MainToolBar(
+                onAlarmClick = onBack
+            )
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { padding ->
@@ -241,11 +325,13 @@ fun CreateAlarmScreen() {
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 TimePickerAlarm(
-                    text = R.string.alarm_creation_text_start_time_label
+                    text = R.string.alarm_creation_text_start_time_label,
+                    onClick = onTimePicker
                 )
                 Spacer(modifier = Modifier.height(21.dp))
                 TimePickerAlarm(
-                    text = R.string.alarm_creation_text_end_time_label
+                    text = R.string.alarm_creation_text_end_time_label,
+                    onClick = onTimePicker
                 )
                 Spacer(modifier = Modifier.height(31.dp))
                 Text(
@@ -265,27 +351,27 @@ fun CreateAlarmScreen() {
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_monday,
-                        checked = true
+                        initialChecked = true
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_tuesday,
-                        checked = true
+                        initialChecked = true
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_wednesday,
-                        checked = true
+                        initialChecked = true
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_thursday,
-                        checked = true
+                        initialChecked = true
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_friday,
-                        checked = true
+                        initialChecked = true
                     )
                     DayCheckBoxAlarm(
                         day = R.string.alarm_creation_text_saturday,
-                        checked = true
+                        initialChecked = true
                     )
                 }
                 Spacer(modifier = Modifier.height(26.dp))
@@ -307,7 +393,8 @@ fun CreateAlarmScreen() {
                     )
                     TypeAlarmButton(
                         text = R.string.alarm_creation_type_suggestion,
-                        icon = R.drawable.icon_notifications
+                        icon = R.drawable.icon_notifications,
+                        onClick = onRecordVoice
                     )
                 }
                 Spacer(modifier = Modifier.height(69.dp))
@@ -318,7 +405,9 @@ fun CreateAlarmScreen() {
                     heightFilledButton = 56.dp,
                     textFilledButton = R.string.alarm_creation_cancel,
                     textTonalButton = R.string.alarm_creation_save,
-                    space = 30.dp
+                    space = 30.dp,
+                    onFilledButtonClick = onBack,
+                    onTonalButtonClick = onSave
                 )
                 Spacer(modifier = Modifier.height(90.dp))
             }
@@ -328,7 +417,10 @@ fun CreateAlarmScreen() {
 
 
 @Composable
-fun RecordVoiceDisplay() {
+fun RecordVoiceDisplay(
+    onBack: () -> Unit = {},
+    onConfirm: () -> Unit = {}
+) {
     Scaffold(
         topBar = {
             MainTab(
@@ -415,7 +507,9 @@ fun RecordVoiceDisplay() {
                     heightFilledButton = 56.dp,
                     textFilledButton = R.string.recording_cancel,
                     textTonalButton = R.string.recording_confirm,
-                    space = 47.5.dp
+                    space = 47.5.dp,
+                    onFilledButtonClick = onBack,
+                    onTonalButtonClick = onConfirm
                 )
             }
         }
@@ -424,7 +518,9 @@ fun RecordVoiceDisplay() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimePickerCreateAlarmDisplay() {
+fun TimePickerCreateAlarmDisplay(
+    onBack: () -> Unit = {}
+) {
     val timePickerState = rememberTimePickerState(
         initialHour = 0,
         initialMinute = 0,
@@ -436,6 +532,7 @@ fun TimePickerCreateAlarmDisplay() {
             modifier = Modifier
                 .matchParentSize()
                 .background(color = FB_Light_Primary10.copy(alpha = .7f))
+                .clickable { onBack() }
         )
         Column(
             verticalArrangement = Arrangement.Center,
@@ -465,7 +562,10 @@ fun TimePickerCreateAlarmDisplay() {
 }
 
 @Composable
-fun DeleteAlarmDisplay() {
+fun DeleteAlarmDisplay(
+    onBack: () -> Unit = {},
+    onConfirmDelete: () -> Unit = {}
+) {
     Box() {
         HomeDisplay()
         Spacer(
@@ -478,6 +578,9 @@ fun DeleteAlarmDisplay() {
             dialogText = R.string.alarm_deletion_text,
             deleteText = R.string.alarm_deletion_delete,
             cancelText = R.string.alarm_deletion_cancel,
+            onDismiss = onBack,
+            onConfirmDelete = onConfirmDelete,
+            onCancel = onBack
         )
     }
 }
@@ -486,6 +589,21 @@ fun DeleteAlarmDisplay() {
 fun LoadingDisplay(
     modifier: Modifier = Modifier
 ) {
+    // Create infinite transition for rotation animation
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+    val rotationAngle by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 800,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation"
+    )
+
     Scaffold() { padding ->
         Background(
             modifier = Modifier
@@ -504,6 +622,9 @@ fun LoadingDisplay(
                     modifier = Modifier
                         .height(172.dp)
                         .width(160.dp)
+                        .graphicsLayer {
+                            rotationZ = rotationAngle
+                        }
                 )
                 Text(
                     text = stringResource(R.string.loading_text),
